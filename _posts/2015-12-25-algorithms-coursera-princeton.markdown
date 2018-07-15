@@ -111,11 +111,12 @@ plug it in and feel the magic! 不得不说这个作业的设计之精巧，看�
 
 整个问题相对比较复杂，但经过给定API的划分和给定的限制后，问题变成了实现一个个目标明确的小方法而已，其中最复杂的不过是A\*的实现，而周到合理的封装和PQ的使用也使得这个过程无比自然，在此之前我从未意识到我可以将A\*在如此短小清晰的代码中实现：（源码如此，仅省略了声明过程）
 ```java
-while (!pq.min().board.isGoal()) { 
+while (true) {
     cur = pq.delMin();
+    if (cur.board.isGoal()) break;
     for (Board nb : cur.board.neighbors()) {
         if (cur.prev != null && nb.equals(cur.prev.board)) continue;
-        pq.insert(new Node(nb, cur.moves+1, cur));
+        pq.insert(new Node(nb, cur.moves + 1, cur));
     }
 }
 ```
@@ -124,8 +125,9 @@ PQ使用了Manhattan Priority作为Comparator，Node为封装Board的单链表�
 当然，在其余部分还是有不少值得提到的点：
 - 用char[]存储一个Board的状态比用int[][]好太多，但使用前需要详细测试将char做数字使用与直接用int的区别；
 - Board的equals()方法只需比较char[]构成的String即可，早期因图省事直接比较了toString()的返回值（one-liner），造成了很大的性能损失，最后寻找问题来源也费了不少功夫（教训：看似再简单的部分也要在脑袋里多转一转再下手，devil in the details，…，you name it）；
-- Solvability: [这篇文章][19]描述的解决方案应为checklist所述方案，但需要脆弱地依赖`toString()`反推Board内容，在本期课程的API设定中已被明确禁止，要求使用两个同步A\*的方案解决（最好使用一个PQ），但未来session可能会在两方案对应API设定间切换，所以我都实现了一遍，上面出现的A\*代码来自文章所述方案；
-- 实现Priority的cache时需要稍多做思考，直觉想到的第一方案是储存在Node中与A\*过程配合，而这将使A\*代码迅速肿胀，且没有很好地利用更多规律：如checklist所指出，对相邻Board每次重新计算Priority其实也有很多重复工作，我的做法是将cache过程作为Board类一个私有构造函数，构造相邻Priority只需做对应增量操作即可，以最简洁的手段达到了目的。
+- Solvability: [这篇文章][19]描述的解决方案应为checklist所述方案，但需要脆弱地依赖`toString()`反推Board内容，在本期课程的API设定中已被明确禁止，要求使用两个同步A\*的方案解决（最好使用一个PQ），但未来session可能会在两方案对应API设定间切换，所以我都实现了一遍；
+- 一个小的细节：comparator的比较函数对性能影响十分显著，一定要减少不必要的运算……
+- 实现Priority的cache时需要稍多做思考，直觉想到的第一方案是储存在Node中与A\*过程配合，而这将使A\*代码迅速肿胀，且没有很好地利用更多规律：如checklist所指出，对相邻Board每次重新计算Priority其实也有很多重复工作，我的做法是将cache过程作为Board类一个私有构造函数，构造相邻Priority只需做对应增量操作即可，以最简洁的手段达到了目的。更新：最新的autograder以检测`manhattan()`等函数调用次数方式评估cache实现，所以还是要在Node里cache一下；
 
 我的最终测试文件及结果在[这里][20]，运行于i5-2450 (8G)，结尾几个复杂的4x4开始因内存不足报错，论坛查到大概需要5-6G超出了我的空闲内存，即使要测也会用到虚拟内存，因而结果参考意义不大。\\
 对于这个作业，努力的最终汇报便是，看着终端中puzzle一个个被正确解决沾沾自喜，然后到相关的拓展材料中去体验无知，发现更大的世界。
