@@ -6,3 +6,4 @@ node_modules
 *.sh
 *.bat
 README.*
+.jekyll-metadata
