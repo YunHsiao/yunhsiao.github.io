@@ -29,4 +29,4 @@ The Talos Principle – Time Capsules from Alexandra Drennan：
 
 [文字](/alexandra-drennan.html)
 
-[视频](https://player.youku.com/embed/XMTMzNjc5MTQ2NA==)
+<iframe src="https://player.youku.com/embed/XMTMzNjc5MTQ2NA==" frameborder="0" allowfullscreen="1"></iframe>
